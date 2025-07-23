@@ -1,0 +1,33 @@
+(define M1 @M1@)
+
+(sdegeo:create-cuboid (position 0 0 0)  (position 0.028 0.03 0.010) "SiO2" "BOX")
+(sdegeo:create-cuboid (position 0 0.013 0.010)  (position 0.028 0.018 0.015) "Silicon" "sourcedrain")
+(sdegeo:set-default-boolean "BAB")
+(sdegeo:create-cuboid (position (- M1 0.010) 0.010 0.010)  (position M1 0.021 0.018) "HfO2" "TOX")
+
+(sdegeo:create-cuboid (position (- M1 0.010) 0 0.010)  (position 0.014 0.03 0.022) "@Metal2@" "M2")
+(sdegeo:create-cuboid (position 0.014 0 0.010)  (position M1 0.03 0.022) "@Metal1@" "M1")
+
+(sdegeo:define-contact-set "source" 4  (color:rgb 1 0 0 ) "##")
+(sdegeo:define-contact-set "drain" 4  (color:rgb 1 0 0 ) "##")
+(sdegeo:define-contact-set "gate" 4  (color:rgb 1 0 0 ) "##")
+
+(sdegeo:set-current-contact-set "source")
+(sdegeo:set-contact (list (car (find-face-id (position 0.0235 0.0155 0.015)))) "source")
+(sdegeo:set-current-contact-set "drain")
+(sdegeo:set-contact (list (car (find-face-id (position 0.0045 0.0155 0.015)))) "drain")
+(sdegeo:set-current-contact-set "gate")
+(sdegeo:set-contact (list (car (find-face-id (position 0.0165 0.015 0.022)))) "gate")
+(sdegeo:set-contact (list (car (find-face-id (position 0.0115 0.015 0.022)))) "gate")
+
+(sdedr:define-constant-profile "ConstantProfileDefinition_1" "PhosphorusActiveConcentration" @Con@)
+(sdedr:define-constant-profile-material "ConstantProfilePlacement_1" "ConstantProfileDefinition_1" "Silicon")
+
+
+(sdedr:define-refeval-window "RefEvalWin_1" "Cuboid" (position -0.005 -0.005 -0.005) (position 0.031 0.031 0.031))
+(sdedr:define-refinement-size "RefinementDefinition_1" 0.002 0.005 0.001 0.002 0.005 0.001 )
+(sdedr:define-refinement-placement "RefinementPlacement_1" "RefinementDefinition_1" (list "window" "RefEvalWin_1" ) )
+(sdedr:define-refinement-function "RefinementDefinition_1" "DopingConcentration" "MaxTransDiff" 1)
+(sdedr:define-refinement-function "RefinementDefinition_1" "MaxLenInt" "SiO2" "Silicon" 1 1.25 "DoubleSide")
+
+(sde:build-mesh "n@node@")

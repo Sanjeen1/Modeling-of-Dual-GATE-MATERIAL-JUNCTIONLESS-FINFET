@@ -1,0 +1,95 @@
+
+File {
+     * input files :
+     Grid=  "@tdr@"
+     
+     
+    * output files:
+    Plot = "@tdrdat@"
+    Current ="@plot@"
+    Output = "@log@"
+    *Param = "Silicon.par"
+}
+
+Electrode {
+     { Name = "source"   Voltage=0}
+     { Name = "drain"   Voltage=0}
+     { Name = "gate"   Voltage=0 }     
+}
+
+Physics (Material="Silicon"){
+	Mobility( DopingDependence Enormal)
+	Recombination (SRH(DopingDependence) Auger)
+	EffectiveIntrinsicDensity( OldSlotboom)
+	
+	Recombination (
+	Band2Band ( 
+ 		Model = Schenk
+		DensityCorrection = Local 
+)
+)
+}
+
+Physics (Material = "Aluminum") {
+MetalWorkfunction ( Workfunction= 4.28)
+}
+Physics (Material = "Titanium") {
+MetalWorkfunction ( Workfunction= 4.66 )
+}
+
+Plot {
+	eDensity hDensity eCurrent/Vector hCurrent/Vector
+	ElectrostaticPotential Potential SpaceCharge ElectricField
+	Doping DonorConcentration AcceptorConcentration
+	TotalCurrentDensity
+	ConductionBand ValenceBand
+	TotalCurrentDensity/Vector eCurrentDensity/Vector hCurrentDensity/Vector
+}
+
+CurrentPlot {
+eDensity( Integrate(Semiconductor))
+}
+
+Math {
+     Extrapolate
+     Avalderivatives
+     RelErrControl
+     Digits=5
+     ErRef(electron)=1.e10
+     ErRef(hole)=1.e10
+     Notdamped=50
+     Iterations=20
+    DirectCurrent
+}
+
+Solve {
+
+ NewCurrentPrefix="init"
+  Coupled(Iterations=100){ Poisson }
+  Coupled{ Poisson Electron Hole }
+  
+  Quasistationary(
+    InitialStep=1e-1 Increment=1.2
+    Minstep=1e-5 MaxStep=0.05
+    Goal{ Name="drain" Voltage= @Vd@ }
+  ){ Coupled{ Poisson Electron Hole} }
+  
+  NewCurrentPrefix=""
+  Quasistationary(
+    DoZero
+    InitialStep=0.02 Increment=1.5
+    Minstep=0.02 MaxStep=0.02
+    Goal{ Name="gate" Voltage= @Vg@ }
+  ){ Coupled{ Poisson Electron Hole}
+    
+    
+  }
+	
+ }
+ 		
+
+ 					
+			
+
+			
+

@@ -1,0 +1,14 @@
+set Vgo 1e-2
+# Extract Vtgm for a p-MOSFET
+set mydata [load_file "@plot@" -name DC] 
+set Vgs [get_variable_data "gate OuterVoltage" -dataset DC]
+set Ids [get_variable_data "drain TotalCurrent" -dataset DC]
+ext::AbsList -out absIds -x $Ids
+ext::ExtractVtgm -out Vtgm -name "out" -v $Vgs -i $absIds
+puts "Vt (Max gm method) is [format %.3f $Vtgm] V"
+#-> Vt (Max gm method) is -0.234 V
+ext::ExtractSS -out SS -name "out" -v $Vgs -i $Ids -vo $Vgo
+puts "SS (subthreshold voltage swing) is [format %.3f $SS] mV/dec"
+#-> SS (subthreshold voltage swing) is 89.555 mV/dec
+ext::ExtractIoff -out Ioff -name "out" -v $Vgs -i $Ids -vo 1e-4 -log10 0
+puts "Ioff is [format %.3e $Ioff] A/um"

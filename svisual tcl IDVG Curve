@@ -1,0 +1,21 @@
+set mydata [load_file "@plot@"]
+set myplot [create_plot -1d]
+set IdVgcurve [create_curve -plot $myplot -dataset $mydata \
+		-axisX "gate InnerVoltage" -axisY "drain TotalCurrent"]
+
+set_curve_prop $IdVgcurve -plot $myplot -show_markers -markers_size 7 \
+     -markers_type circlef -label "DMGJLFinFET"
+
+
+set_plot_prop -show_grid
+set_grid_prop -show_minor_lines  \
+    -line1_style dash -line1_color #a0a0a4 \
+    -line2_style dot -line2_color #c0c0c0 
+
+set_axis_prop -plot $myplot -axis x -title "V<sub>gate</sub> (V)"
+set_axis_prop -plot $myplot -axis y -title "I<sub>drain</sub>\
+ (A/<greek>m</greek>m)" -type log
+set_axis_prop -plot $myplot -axis y -range {1e-08 0.001}
+
+export_view "n@node@_curve.png" -plots $myplot -resolution 500x500 \
+    -format PNG -overwrite 

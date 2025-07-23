@@ -1,0 +1,40 @@
+
+# Definition of ID for determination of Vti [A/mm2]
+set Ivti 1e-7
+
+#set Vti -1
+set N @node|sdevice@
+set fname "@plot@"
+
+set Vd @Vd@
+puts "Drain Bias: $Vd"
+set Vg @Vg@
+puts "Vg: $Vg"
+
+set Vgo 1e-2
+# Extract Vtgm for a p-MOSFET
+set mydata [load_file "@plot@" -name DC] 
+set Vgs [get_variable_data "gate OuterVoltage" -dataset DC]
+set Ids [get_variable_data "drain TotalCurrent" -dataset DC]
+ext::AbsList -out absIds -x $Ids
+
+# What we do depends on whether we run interactively or in batch mode
+if {![info exists runVisualizerNodesTogether]} {
+# --------- Extraction -------------------------------------------------
+	load_library extract
+	
+	load_file $fname -name PLT($N)
+	set Vgs [get_variable_data "gate OuterVoltage"  -dataset PLT($N)]
+	set Ids [get_variable_data "drain TotalCurrent" -dataset PLT($N)]
+	
+	
+	ext::ExtractVtgm -out Vtgm -name "out" -v $Vgs -i $absIds
+#if @AvalFac@ == 1
+	
+
+        set DIBL [expr (@<Vtgm:-1>@ - $Vtgm) / ( @<Vd:-1>@ - $Vd ) ]
+
+
+	puts "DOE: DIBL [format %.3f $DIBL]"
+#endif	
+} 
